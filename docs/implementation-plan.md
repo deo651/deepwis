@@ -174,8 +174,8 @@ interface AppSchema {
 - **改造**：`paper.*` 重定义为深色色阶（`page = #0a0f1d` 等），`ink.*` 色阶反转（让 `text-ink-900` 在深色背景上自动变浅文字）；`AppRenderer` 中所有 `bg-ink-*` / `text-ink-*` 改为 Tailwind 内置 `slate.*` / `gray.*`，让生成子应用的 isLight ↔ isDark 切换不受 host 主题影响。
 - **8 个 host 组件** 中的 `bg-white` 替换为 `bg-paper-card`；状态色 chip 从 `bg-emerald-50 text-emerald-700` 改为 `bg-emerald-500/10 text-emerald-300`，在深色背景下仍清晰。
 
-### 8.3 部署：腾讯云 0.0.0.0:5173
+### 8.3 部署：云服务器 0.0.0.0:5173
 
 - `npm run preview -- --host 0.0.0.0` 替代直接暴露 dev server，避免 HMR WebSocket 在反代 / 安全组下的不确定性。
 - 本机 / 内网 / 服务器自身访问公网 IP 三种 curl 均验证 HTTP 200。
-- 公网外部访问最终一跳由用户在腾讯云控制台开放安全组入站 TCP 5173 完成。
+- 公网外部访问最终一跳由用户在云厂商控制台开放安全组入站 TCP 5173 完成（本仓库当前部署已开放，公网可达）。
