@@ -9,10 +9,10 @@ export function Toasts() {
       {toasts.map((t) => {
         const color =
           t.kind === 'success'
-            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'
             : t.kind === 'error'
-            ? 'border-red-200 bg-red-50 text-red-800'
-            : 'border-paper-border bg-white text-ink-800';
+            ? 'border-red-400/30 bg-red-500/10 text-red-200'
+            : 'border-paper-border bg-paper-card text-ink-800';
         const Icon = t.kind === 'success' ? CheckCircle2 : t.kind === 'error' ? AlertTriangle : Info;
         return (
           <div

@@ -4,26 +4,29 @@ import type { AgentProvider, AgentRunContext } from './provider';
 import { GENERATE_STEPS, MODIFY_STEPS, newStep, sleep } from './steps';
 
 export interface LLMConfig {
-  baseUrl: string;
-  apiKey: string;
+  /** 仅承载模型名用于 UI 展示，真正的 API key / endpoint 仅在服务器端持有 */
   model: string;
 }
 
 /**
- * 从 import.meta.env 读取 LLM 配置。
+ * 通过同源 `/api/llm/status` 探测服务器端是否配置了 LLM。
  *
- * - `.env` 中的 VITE_LLM_BASE_URL / VITE_LLM_MODEL / VITE_LLM_API_KEY 会被 Vite 注入到客户端。
- * - 在生产前部署到公网时，请在部署平台单独配置环境变量。
- * - 任何情况下都不要把 API Key 写入仓库。
- *
- * 兼容 Azure OpenAI v1 端点（如 `https://xxx.openai.azure.com/openai/v1`）。
+ * 安全约束：
+ * - `.env` 中的 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 仅由 Vite plugin
+ *   `atomforge-llm-proxy`（见 vite.config.ts）在 Node 进程内存中读取。
+ * - 浏览器**永远不接触** Key；前端只能通过 POST `/api/llm/chat` 间接调用 LLM。
+ * - 任何情况下都不要把 Key 写入 import.meta.env 或 bundle。
  */
-export function readLLMConfigFromEnv(): LLMConfig | null {
-  const baseUrl = import.meta.env.VITE_LLM_BASE_URL?.trim();
-  const apiKey = import.meta.env.VITE_LLM_API_KEY?.trim();
-  const model = import.meta.env.VITE_LLM_MODEL?.trim();
-  if (!baseUrl || !apiKey || !model) return null;
-  return { baseUrl, apiKey, model };
+export async function readLLMConfigFromServer(): Promise<LLMConfig | null> {
+  try {
+    const res = await fetch('/api/llm/status', { method: 'GET', cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { available?: boolean; model?: string };
+    if (!data.available || !data.model) return null;
+    return { model: data.model };
+  } catch {
+    return null;
+  }
 }
 
 const SYSTEM_PROMPT_GENERATE = `You are AtomForge, a senior product engineer Agent that converts product
@@ -113,30 +116,22 @@ Use Chinese for all labels. NEVER include prose, code fences, or markdown.
 /** 单次 LLM 调用上限：60s（reasoning model 通常 5~20s，60s 足够留出余量） */
 const LLM_TIMEOUT_MS = 60_000;
 
-async function callChatJSON(cfg: LLMConfig, system: string, user: string): Promise<unknown> {
-  const url = cfg.baseUrl.replace(/\/$/, '') + '/chat/completions';
+/**
+ * 通过同源代理调用 LLM。
+ *
+ * - 前端只调 `/api/llm/chat`，由 vite.config.ts 中的 LLM proxy plugin 在 Node 进程内
+ *   读取 `.env` 中的 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 并代为转发到真实 LLM 端点。
+ * - 前端永远不接触 baseUrl / apiKey；这两个值不会出现在 dist bundle 中。
+ */
+async function callChatJSON(_cfg: LLMConfig, system: string, user: string): Promise<unknown> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetch('/api/llm/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${cfg.apiKey}`,
-        // Azure 兼容路径同样接受 api-key 头
-        'api-key': cfg.apiKey,
-      },
-      body: JSON.stringify({
-        model: cfg.model,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-        response_format: { type: 'json_object' },
-        // 注意：新一代 reasoning 模型（gpt-5.x 等）不支持自定义 temperature。
-        // 这里完全不传，使用服务端默认值，以兼容多种模型。
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system, user }),
       signal: controller.signal,
     });
   } catch (e) {
@@ -149,11 +144,18 @@ async function callChatJSON(cfg: LLMConfig, system: string, user: string): Promi
   clearTimeout(timer);
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`LLM HTTP ${res.status}: ${text.slice(0, 200)}`);
+    let detail = '';
+    try {
+      const data = (await res.json()) as { error?: string };
+      detail = data.error ?? '';
+    } catch {
+      detail = await res.text().catch(() => '');
+    }
+    throw new Error(`LLM HTTP ${res.status}${detail ? ': ' + detail.slice(0, 200) : ''}`);
   }
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const content = data.choices?.[0]?.message?.content ?? '';
+  const data = (await res.json()) as { content?: string; error?: string };
+  if (data.error) throw new Error(data.error);
+  const content = data.content ?? '';
   if (!content) throw new Error('LLM 返回空内容');
   try {
     return JSON.parse(content);

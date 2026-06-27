@@ -37,7 +37,7 @@ export function PreviewPanel() {
 
   if (!project) {
     return (
-      <section className="flex h-full w-[480px] flex-col border-l border-paper-border bg-white/40 backdrop-blur">
+      <section className="flex h-full w-[480px] flex-col border-l border-paper-border bg-paper-card/40 backdrop-blur">
         <div className="border-b border-paper-border px-5 py-3">
           <span className="text-sm font-medium text-ink-900">Preview</span>
         </div>
@@ -98,8 +98,8 @@ export function PreviewPanel() {
   const isCurrentLatest = currentIdx === versions.length - 1;
 
   return (
-    <section className="flex h-full w-[520px] min-w-[420px] shrink-0 flex-col border-l border-paper-border bg-white/40 backdrop-blur xl:w-[560px]">
-      <div className="flex items-center gap-2 border-b border-paper-border bg-white/50 px-4 py-2.5">
+    <section className="flex h-full w-[520px] min-w-[420px] shrink-0 flex-col border-l border-paper-border bg-paper-card/40 backdrop-blur xl:w-[560px]">
+      <div className="flex items-center gap-2 border-b border-paper-border bg-paper-card/50 px-4 py-2.5">
         <Layers size={14} className="text-ink-500" />
         <div className="flex items-center gap-1.5 text-sm text-ink-900">
           <span className="font-medium">{project.name}</span>
@@ -113,7 +113,7 @@ export function PreviewPanel() {
             <ChevronDown size={10} />
           </button>
           {versionOpen && (
-            <div className="absolute left-0 top-full z-30 mt-1 max-h-72 w-72 overflow-auto rounded-lg border border-paper-border bg-white p-1 shadow-xl">
+            <div className="absolute left-0 top-full z-30 mt-1 max-h-72 w-72 overflow-auto rounded-lg border border-paper-border bg-paper-card p-1 shadow-xl">
               {versions.slice().reverse().map((v, ri) => {
                 const realIdx = versions.length - 1 - ri;
                 const active = v.id === previewVersionId;
@@ -121,7 +121,7 @@ export function PreviewPanel() {
                   <div
                     key={v.id}
                     className={`flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-xs transition ${
-                      active ? 'bg-atom-50 text-atom-700' : 'text-ink-700 hover:bg-paper-subtle'
+                      active ? 'bg-atom-600/15 text-atom-300' : 'text-ink-700 hover:bg-paper-subtle'
                     }`}
                     onClick={() => {
                       switchPreviewVersion(v.id);
@@ -135,7 +135,7 @@ export function PreviewPanel() {
                     </div>
                     {!active && realIdx !== versions.length - 1 && (
                       <button
-                        className="btn-icon text-ink-500 hover:text-emerald-600"
+                        className="btn-icon text-ink-500 hover:text-emerald-400"
                         title="恢复到该版本"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -153,7 +153,7 @@ export function PreviewPanel() {
           )}
         </div>
         {!isCurrentLatest && (
-          <span className="chip border-amber-300 bg-amber-50 text-[10px] text-amber-700">查看历史</span>
+          <span className="chip border-amber-400/40 bg-amber-500/10 text-[10px] text-amber-300">查看历史</span>
         )}
         <div className="ml-auto flex items-center gap-1">
           <button className="btn-icon" onClick={onImport} title="导入 JSON"><Upload size={14} /></button>
@@ -161,7 +161,7 @@ export function PreviewPanel() {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 border-b border-paper-border bg-white/30 px-2 py-1.5">
+      <div className="flex items-center gap-1 border-b border-paper-border bg-paper-card/30 px-2 py-1.5">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = rightPanel === t.id;
@@ -170,8 +170,8 @@ export function PreviewPanel() {
               key={t.id}
               className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs transition ${
                 active
-                  ? 'bg-ink-900 text-white shadow-soft'
-                  : 'text-ink-600 hover:bg-ink-900/[0.05] hover:text-ink-900'
+                  ? 'bg-atom-600 text-white shadow-soft'
+                  : 'text-ink-600 hover:bg-white/[0.05] hover:text-ink-900'
               }`}
               onClick={() => setRightPanel(t.id)}
             >

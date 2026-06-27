@@ -5,6 +5,9 @@
 prompt.md
 state.json
 
+# 本地协作规则（不入仓库，由各自会话自维护）
+CLAUDE.md
+
 # 本地开发配置
 .venv/
 .idea/

@@ -3,7 +3,7 @@ import type { AgentMessage, AgentStep, AppRecord, AppVersion, Project } from '@/
 import type { AppSchema } from '@/types/schema';
 import { db } from '@/db/db';
 import { nanoId } from '@/utils/id';
-import { runGenerate, runModify, hasLLMConfigured } from '@/agent';
+import { runGenerate, runModify, checkLLMAvailable } from '@/agent';
 
 export type RightPanelTab = 'preview' | 'code' | 'diff' | 'data';
 
@@ -30,6 +30,7 @@ interface StoreState {
   toasts: ToastItem[];
   preferLLM: boolean;
   llmAvailable: boolean;
+  llmModel: string;
 
   // 初始化与项目
   bootstrap(): Promise<void>;
@@ -83,15 +84,18 @@ export const useStore = create<StoreState>((set, get) => ({
   liveSteps: [],
   toasts: [],
   preferLLM: false,
-  llmAvailable: hasLLMConfigured(),
+  llmAvailable: false,
+  llmModel: '',
 
   async bootstrap() {
     const projects = await db.listProjects();
     const meta = (await db.getMeta<{ preferLLM?: boolean; lastProjectId?: string }>('settings')) ?? {};
+    const llm = await checkLLMAvailable();
     set({
       projects,
-      llmAvailable: hasLLMConfigured(),
-      preferLLM: meta.preferLLM ?? hasLLMConfigured(),
+      llmAvailable: llm.available,
+      llmModel: llm.model ?? '',
+      preferLLM: meta.preferLLM ?? llm.available,
     });
     if (meta.lastProjectId && projects.find((p) => p.id === meta.lastProjectId)) {
       await get().selectProject(meta.lastProjectId);

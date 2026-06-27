@@ -33,7 +33,7 @@ export function Sidebar({ onPickTemplate }: Props) {
   const [editingName, setEditingName] = useState('');
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-paper-border bg-white/70 backdrop-blur">
+    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-paper-border bg-paper-card/60 backdrop-blur">
       <div className="flex items-center gap-2 border-b border-paper-border px-4 py-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-atom-100 text-atom-600">
           <Sparkles size={16} />
@@ -46,7 +46,7 @@ export function Sidebar({ onPickTemplate }: Props) {
 
       <div className="px-3 py-3">
         <button
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-paper-border bg-white px-3 py-2 text-sm font-medium text-ink-700 shadow-soft transition hover:border-paper-borderStrong hover:bg-paper-subtle hover:text-ink-900"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-paper-border bg-paper-card px-3 py-2 text-sm font-medium text-ink-800 shadow-soft transition hover:border-paper-borderStrong hover:bg-paper-subtle hover:text-ink-900"
           onClick={() => selectProject(null)}
         >
           <Plus size={14} />新项目
@@ -67,8 +67,8 @@ export function Sidebar({ onPickTemplate }: Props) {
               key={p.id}
               className={`group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm transition ${
                 active
-                  ? 'bg-atom-50 text-atom-700 ring-1 ring-atom-200'
-                  : 'text-ink-700 hover:bg-ink-900/[0.04] hover:text-ink-900'
+                  ? 'bg-atom-600/15 text-atom-400 ring-1 ring-atom-500/30'
+                  : 'text-ink-700 hover:bg-white/[0.04] hover:text-ink-900'
               }`}
               onClick={() => editingId !== p.id && selectProject(p.id)}
               role="button"
@@ -78,7 +78,7 @@ export function Sidebar({ onPickTemplate }: Props) {
                 <div className="flex flex-1 items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <input
                     autoFocus
-                    className="flex-1 rounded border border-atom-400 bg-white px-2 py-1 text-xs text-ink-900 focus:outline-none focus:ring-2 focus:ring-atom-500/20"
+                    className="flex-1 rounded border border-atom-400 bg-paper-subtle px-2 py-1 text-xs text-ink-900 focus:outline-none focus:ring-2 focus:ring-atom-500/30"
                     value={editingName}
                     onChange={(e) => setEditingName(e.target.value)}
                     onKeyDown={(e) => {
@@ -142,7 +142,7 @@ export function Sidebar({ onPickTemplate }: Props) {
           {TEMPLATES.map((t) => (
             <button
               key={t.id}
-              className="flex w-full items-start gap-2 rounded-lg border border-paper-border bg-white px-2.5 py-2 text-left text-xs text-ink-700 shadow-soft transition hover:border-atom-300 hover:bg-atom-50 hover:text-ink-900"
+              className="flex w-full items-start gap-2 rounded-lg border border-paper-border bg-paper-card px-2.5 py-2 text-left text-xs text-ink-800 shadow-soft transition hover:border-atom-400 hover:bg-atom-600/10 hover:text-ink-900"
               onClick={() => onPickTemplate(t)}
               title={t.description}
             >
@@ -174,19 +174,18 @@ export function Sidebar({ onPickTemplate }: Props) {
             </div>
             <div className="mt-0.5 text-ink-500">
               {llmAvailable
-                ? '已检测到 .env，调用真实模型'
-                : '未配置 .env，将使用 DemoProvider'}
+                ? '服务器端 .env 已就绪，前端经代理调用'
+                : '服务器 .env 未配置，将使用 DemoProvider'}
             </div>
             {llmAvailable && preferLLM && (
-              <div className="mt-1 flex items-start gap-1 text-amber-700">
-                <AlertTriangle size={10} className="mt-0.5 shrink-0" />
-                <span className="leading-tight">Key 在前端 bundle 中，请勿公开部署</span>
+              <div className="mt-1 flex items-start gap-1 text-emerald-300/90">
+                <span className="leading-tight">Key 仅在服务器 .env 内；浏览器永不持有</span>
               </div>
             )}
             {!llmAvailable && (
-              <div className="mt-1 flex items-center gap-1 text-amber-700/90">
+              <div className="mt-1 flex items-center gap-1 text-amber-300/90">
                 <AlertTriangle size={10} />
-                <span>可在 .env 中填入 VITE_LLM_*</span>
+                <span>服务器 .env 未配置 LLM_*，将走 Demo</span>
               </div>
             )}
           </div>

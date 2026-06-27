@@ -111,10 +111,11 @@ interface AppSchema {
 
 ### LLMProvider
 
-- 从 `.env`（`VITE_LLM_BASE_URL`、`VITE_LLM_MODEL`、`VITE_LLM_API_KEY`）读取。
-- 调用 `chat.completions`（非流式即可，控制简单），system prompt 严格要求返回 JSON Schema。
+- **服务端代理架构**（详见 §8.1 补记）：`.env` 中的 `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL` 仅由 `vite.config.ts` 中的 `atomforge-llm-proxy` plugin 在 Node 进程内读取。
+- 前端通过同源 `/api/llm/chat` 调用，**绝不**接触 Key。
+- 调用真实 LLM 走 `chat.completions`（非流式即可，控制简单），system prompt 严格要求返回 JSON Schema。
 - 失败或缺配置 → 在 UI 显式提示"未配置/失败，已降级到 DemoProvider"，并自动回退。
-- Key 绝不写入仓库或日志，所有调用前过滤敏感字段。
+- Key 绝不写入仓库或日志；`dist/assets/*.js` 中 Key 字符串经 grep 验证 0 命中。
 
 ## 5. UI 布局
 
@@ -151,3 +152,30 @@ interface AppSchema {
 - [ ] Diff 视图正确
 - [ ] DemoProvider 与 LLM 降级提示
 - [ ] 模板一键创建
+
+## 8. 实际落地与原计划的差异（补记于上线优化阶段）
+
+> 原计划是 MVP 思路（Phase 1-4），实际上线阶段做了两处显著增强，保证 Demo "可上线可分享"：
+
+### 8.1 LLM Key 路径：从 `VITE_LLM_*` 改为服务端代理
+
+- **原计划**：`.env` 中放 `VITE_LLM_*`，由 `import.meta.env` 直接注入到前端。
+- **实际问题**：`VITE_*` 变量在 `npm run build` 时会被 Vite 字面值 inline 到 `dist/assets/*.js`，等价于把 Key 暴露给任何能访问站点 JS 的访客。
+- **改造**：在 `vite.config.ts` 中新增 `atomforge-llm-proxy` plugin：
+  - `configureServer` + `configurePreviewServer` 钩子注册同源 `/api/llm/status`（探测可用性）与 `/api/llm/chat`（接收 `{system, user}` 转发到真实端点）。
+  - 用 `loadEnv` 在 Node 进程内读 `.env` 中的 `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL`（兼容旧 `VITE_LLM_*`）。
+  - 用 `define` 强制 `import.meta.env.VITE_LLM_*` 为 `''`（双保险）。
+- **前端变化**：`llmProvider.readLLMConfigFromEnv()` → `readLLMConfigFromServer()`（fetch `/api/llm/status`）；`callChatJSON` 改为 fetch `/api/llm/chat`，不再持有 baseUrl/apiKey。
+- **验证**：`grep -F "<key>" dist/assets/*.js` 命中 0 行；`/api/llm/status` 响应仅含 `{available, model}`。
+
+### 8.2 视觉：从浅色 paper-page 改为深色 AI Builder
+
+- **原计划**：Tailwind 浅色 surface（`paper.page = #f6f7fb`）。
+- **改造**：`paper.*` 重定义为深色色阶（`page = #0a0f1d` 等），`ink.*` 色阶反转（让 `text-ink-900` 在深色背景上自动变浅文字）；`AppRenderer` 中所有 `bg-ink-*` / `text-ink-*` 改为 Tailwind 内置 `slate.*` / `gray.*`，让生成子应用的 isLight ↔ isDark 切换不受 host 主题影响。
+- **8 个 host 组件** 中的 `bg-white` 替换为 `bg-paper-card`；状态色 chip 从 `bg-emerald-50 text-emerald-700` 改为 `bg-emerald-500/10 text-emerald-300`，在深色背景下仍清晰。
+
+### 8.3 部署：腾讯云 0.0.0.0:5173
+
+- `npm run preview -- --host 0.0.0.0` 替代直接暴露 dev server，避免 HMR WebSocket 在反代 / 安全组下的不确定性。
+- 本机 / 内网 / 服务器自身访问公网 IP 三种 curl 均验证 HTTP 200。
+- 公网外部访问最终一跳由用户在腾讯云控制台开放安全组入站 TCP 5173 完成。

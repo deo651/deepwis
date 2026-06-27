@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html,
@@ -17,13 +17,14 @@ body,
 }
 
 body {
-  /* 浅色基调 + 微妙的紫/蓝晕，保留品牌感 */
+  /* 深色 AI Builder 基调 + 多层辉光：紫 / 青 / 玫红 */
   background:
-    radial-gradient(circle at 12% -10%, rgba(99, 102, 241, 0.10), transparent 55%),
-    radial-gradient(circle at 92% 110%, rgba(34, 211, 238, 0.08), transparent 55%),
-    #f6f7fb;
+    radial-gradient(circle at 12% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
+    radial-gradient(circle at 92% 110%, rgba(56, 189, 248, 0.14), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08), transparent 65%),
+    #0a0f1d;
   min-height: 100vh;
-  color: #0f172a;
+  color: #f1f5fb;
 }
 
 ::-webkit-scrollbar {
@@ -32,41 +33,46 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.12);
+  background: rgba(148, 163, 184, 0.18);
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.2);
+  background: rgba(148, 163, 184, 0.3);
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
+/* 字段焦点：深色光晕 */
+*:focus-visible {
+  outline: none;
+}
+
 @layer components {
-  /* 玻璃感面板：白色 + 微弱模糊 */
+  /* 玻璃感面板：深色 + 微弱模糊 */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(22, 28, 51, 0.55);
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.10);
   }
   .btn-primary {
     @apply inline-flex items-center gap-1.5 rounded-lg bg-atom-600 px-3 py-1.5 text-sm font-medium text-white shadow-glow transition hover:bg-atom-500 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-1.5 rounded-lg border border-paper-border bg-white px-3 py-1.5 text-sm font-medium text-ink-700 shadow-soft transition hover:border-paper-borderStrong hover:bg-paper-subtle disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-paper-border bg-paper-card px-3 py-1.5 text-sm font-medium text-ink-800 shadow-soft transition hover:border-paper-borderStrong hover:bg-paper-subtle hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-icon {
-    @apply inline-flex items-center justify-center rounded-md p-1.5 text-ink-500 transition hover:bg-ink-900/[0.05] hover:text-ink-900;
+    @apply inline-flex items-center justify-center rounded-md p-1.5 text-ink-500 transition hover:bg-white/[0.06] hover:text-ink-900;
   }
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full border border-paper-border bg-white px-2 py-0.5 text-[11px] font-medium text-ink-600 shadow-soft;
+    @apply inline-flex items-center gap-1 rounded-full border border-paper-border bg-paper-card px-2 py-0.5 text-[11px] font-medium text-ink-700 shadow-soft;
   }
   .panel {
-    @apply rounded-xl border border-paper-border bg-white shadow-soft;
+    @apply rounded-xl border border-paper-border bg-paper-card shadow-soft;
   }
   .input-base {
-    @apply w-full rounded-lg border border-paper-border bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 shadow-soft focus:border-atom-400 focus:outline-none focus:ring-2 focus:ring-atom-500/20;
+    @apply w-full rounded-lg border border-paper-border bg-paper-subtle px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 shadow-soft focus:border-atom-400 focus:outline-none focus:ring-2 focus:ring-atom-500/30;
   }
 }

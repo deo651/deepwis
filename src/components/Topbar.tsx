@@ -12,7 +12,7 @@ export function Topbar() {
   const usingLLM = llmAvailable && preferLLM;
 
   return (
-    <header className="flex h-12 items-center gap-3 border-b border-paper-border bg-white/80 px-4 backdrop-blur">
+    <header className="flex h-12 items-center gap-3 border-b border-paper-border bg-paper-card/80 px-4 backdrop-blur">
       <div className="flex items-center gap-2 text-ink-900">
         <Atom size={16} className="text-atom-600" />
         <span className="text-sm font-semibold">AtomForge</span>
@@ -26,7 +26,7 @@ export function Topbar() {
       <div className="ml-auto flex items-center gap-2 text-xs">
         <span
           className={`chip ${
-            usingLLM ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'text-ink-600'
+            usingLLM ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300' : 'text-ink-600'
           }`}
         >
           {usingLLM ? (
@@ -40,7 +40,7 @@ export function Topbar() {
           )}
         </span>
         {preferLLM && !llmAvailable && (
-          <span className="chip border-amber-300 bg-amber-50 text-amber-700">
+          <span className="chip border-amber-400/40 bg-amber-500/10 text-amber-300">
             <ShieldAlert size={11} />未配置 .env
           </span>
         )}

@@ -4,8 +4,9 @@
 
 ## 0 准备（10s）
 
-- 终端：`npm install && npm run dev`，打开 `http://localhost:5173`
+- 终端：`npm install && npm run dev`（本地）或 `npm run build && npm run preview -- --host 0.0.0.0 --port 5173`（服务器），打开 `http://<host>:5173`
 - 清理：必要时打开 DevTools → Application → IndexedDB → `atomforge` → 全部清空，进入首次体验状态
+- （可选）启用真实 LLM：在 `.env` 配 `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL`，**注意变量名不带 `VITE_` 前缀**——这是确保 Key 仅在服务器进程内、绝不进前端 bundle 的关键
 
 ---
 
@@ -78,8 +79,9 @@
 > "所有数据都在 IndexedDB 里，无需登录。"
 
 - **(可选) LLM 降级演示**：
-  - 在 `.env` 里填一个错的 API Key 重启 → 勾上"使用真实 LLM" → 发指令
-  - 看 Agent 调用失败后自动回退到 Demo，Toast 显示原因
+  - 临时在 `.env` 写错的 `LLM_API_KEY` 重启 → 勾上"使用真实 LLM" → 发指令
+  - 看 Agent 调用 `/api/llm/chat` 失败后自动回退到 Demo，Toast 显示原因
+  - 强调："服务端代理：`/api/llm/status` 只返回 `{available, model}`；`base_url` 与 `api_key` 从未到达浏览器；可在 DevTools Network 面板验证"
 
 ---
 
@@ -87,7 +89,8 @@
 
 > "AtomForge 用一句话需求 + 通用 Schema Renderer，演示了 Atoms 风格的核心体验：
 > 真实生成、真实交互、真实持久化、真实版本控制。
-> 接下来可以接服务端代理 LLM、加流式输出、加多实体支持，把它做成完整产品。"
+> 安全侧：LLM Key 走服务端代理，浏览器永不持有，公网部署也合规。
+> 接下来可以加 HTTPS / 域名、加流式输出、加多实体支持，把它做成完整产品。"
 
 ---
 

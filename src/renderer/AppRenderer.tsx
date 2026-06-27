@@ -82,12 +82,12 @@ export function AppRenderer({ schema, records }: Props) {
   );
 
   const isLight = themeMode === 'light';
-  const surface = isLight ? 'bg-white text-gray-900' : 'bg-ink-900 text-ink-100';
-  const sub = isLight ? 'text-gray-500' : 'text-ink-400';
-  const card = isLight ? 'bg-white border border-gray-200' : 'bg-ink-800/70 border border-white/5';
+  const surface = isLight ? 'bg-white text-gray-900' : 'bg-slate-900 text-slate-100';
+  const sub = isLight ? 'text-gray-500' : 'text-slate-400';
+  const card = isLight ? 'bg-white border border-gray-200' : 'bg-slate-800/70 border border-white/5';
   const inputCls = isLight
     ? 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2'
-    : 'w-full rounded-lg border border-white/10 bg-ink-800/60 px-3 py-2 text-sm text-white placeholder:text-ink-400 focus:outline-none focus:ring-2';
+    : 'w-full rounded-lg border border-white/10 bg-slate-800/60 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2';
 
   const accent = schema.theme.primary;
 
@@ -255,7 +255,7 @@ export function AppRenderer({ schema, records }: Props) {
       {(creating || editing) && (
         <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 p-4 md:items-center" onClick={() => { setCreating(false); setEditing(null); }}>
           <div
-            className={`w-full max-w-md rounded-2xl p-5 shadow-2xl ${isLight ? 'bg-white' : 'bg-ink-900 border border-white/10'}`}
+            className={`w-full max-w-md rounded-2xl p-5 shadow-2xl ${isLight ? 'bg-white' : 'bg-slate-900 border border-white/10'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-center justify-between">
@@ -301,7 +301,7 @@ function EmptyState({ schema, isLight, accent, onCreate, hasFilter }: {
   schema: AppSchema; isLight: boolean; accent: string; onCreate: () => void; hasFilter: boolean;
 }) {
   return (
-    <div className={`flex h-full flex-col items-center justify-center rounded-xl border border-dashed py-10 ${isLight ? 'border-gray-200 text-gray-500' : 'border-white/10 text-ink-300'}`}>
+    <div className={`flex h-full flex-col items-center justify-center rounded-xl border border-dashed py-10 ${isLight ? 'border-gray-200 text-gray-500' : 'border-white/10 text-slate-300'}`}>
       <div className="mb-3 text-3xl" style={{ filter: 'saturate(1.2)' }}>{schema.emoji}</div>
       <div className="text-sm">
         {hasFilter ? '没有符合条件的内容' : `还没有${schema.entity.pluralLabel}，从添加第一条开始吧`}
@@ -331,8 +331,8 @@ function RecordCard({
 }) {
   const card = isLight
     ? 'bg-white border border-gray-200 hover:border-gray-300'
-    : 'bg-ink-800/60 border border-white/[0.05] hover:border-white/10';
-  const sub = isLight ? 'text-gray-500' : 'text-ink-400';
+    : 'bg-slate-800/60 border border-white/[0.05] hover:border-white/10';
+  const sub = isLight ? 'text-gray-500' : 'text-slate-400';
   const summaryFields = schema.entity.fields.filter((f) => f.showInSummary);
   const titleField = summaryFields[0] ?? schema.entity.fields[0];
   const otherFields = summaryFields.slice(1);
@@ -442,7 +442,7 @@ function FieldInput({ field, value, onChange, isLight, inputCls, accent }: {
   inputCls: string;
   accent: string;
 }) {
-  const labelCls = `mb-1 block text-xs font-medium ${isLight ? 'text-gray-500' : 'text-ink-300'}`;
+  const labelCls = `mb-1 block text-xs font-medium ${isLight ? 'text-gray-500' : 'text-slate-300'}`;
   const ringStyle = { ['--tw-ring-color' as any]: accent + '55' };
   if (field.type === 'longtext') {
     return (
@@ -472,7 +472,7 @@ function FieldInput({ field, value, onChange, isLight, inputCls, accent }: {
     return (
       <label className="flex items-center gap-2">
         <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />
-        <span className={isLight ? 'text-sm text-gray-700' : 'text-sm text-ink-200'}>{field.label}</span>
+        <span className={isLight ? 'text-sm text-gray-700' : 'text-sm text-slate-200'}>{field.label}</span>
       </label>
     );
   }
